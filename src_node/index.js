@@ -19,6 +19,8 @@ io.on('connection', function(socket){
       console.log(page+".code",code)
       if(code != null){
         socket.emit('page', {code:code})
+      }else{
+        socket.emit('page', {code:""})
       }
     })
   })
