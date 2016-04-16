@@ -10,12 +10,25 @@ receiver = redis.createClient();
 
 var io = require('socket.io')(http);
 
+receiver.on("ready", function(){
+  receiver.psubscribe("*.running")
+});
+
+receiver.on("pmessage", function(pattern, channel, message){
+  sketch = channel.split(".")[0]
+  io.to(sketch).emit("running",message)
+})
+
 io.on('connection', function(socket){
   var page = ""
   socket.on('page', function(message){
     page = message.name
     socket.join(page)
-    master.sadd("sketches",page)
+    master.sadd("sketches",page, function(){
+      master.smembers("sketches", function(err, sketches){
+        socket.emit("sketches", sketches)
+      })
+    })
     master.get(page+".code", function(err,code){
       console.log(page+".code",code)
       if(code != null){
@@ -24,8 +37,8 @@ io.on('connection', function(socket){
         socket.emit('page', {code:""})
       }
     })
-    master.smembers("sketches", function(err, sketches){
-      socket.emit("sketches", sketches)
+    master.get(page+".running",function(err, running){
+      socket.emit("running", running)
     })
   })
   socket.on('save', function(message){

@@ -18,44 +18,66 @@ class DataScript(dict):
         self['d'] = self
         self.update(stdlib.__dict__)
         self.running = False
+        self.graphs = []
 
     def start(self):
         threading.Thread(target=self.run).start()
+
+    def graph(*args):
+        graph = []
+        for i in args:
+            try:
+                i = i.chan
+            except:
+                pass
+            graph.append(i)
+        graphs.append(graph)
 
     def stop(self):
         self.pubsub.reset()
 
     def run(self):
-        self.running = True
-        exec(self.script, self, self)
-        for message in self.pubsub.listen():
-            if message['type'] != 'pmessage':
-                continue
-            data = json.loads(message['data'])
-            chan = message['channel']
-            schan = ".".join(chan.split(".")[1:])
-            sensor = getattr(self, schan)
-            device = sensor.device
-            t = datetime.fromtimestamp(data['t'])
-            val = data['val']
-            dp = Datapoint(t=t,val=val)
-            sensor.append(dp)
-            if len(sensor) > 10:
-                sensor.pop(0)
-            for listener in self.listeners.get(message['pattern'], ()):
-                kwargs = dict(chan=sensor,device=device,data=dp)
-                while True:
-                    try:
-                        listener(**kwargs)
-                    except TypeError as e: # Remove offending kwargs until function is happy
-                        m = re.match(r"\w+\(\) got an unexpected keyword argument '(\w+)'", e.message)
-                        if m is not None:
-                            del kwargs[m.group(1)]
-                            continue
-                        else:
-                            raise e
-                    break
-        self.running = False
+        try:
+            print "Starting"
+            self.running = True
+            self.r.set("%s.running"%self.name,2)
+            self.r.publish("%s.running"%self.name,2)
+            exec(self.script, self, self)
+            self.r.publish("%s.graphs"%self.name,json.dumps(self.graphs))
+            self.r.set("%s.running"%self.name,1)
+            self.r.publish("%s.running"%self.name,1)
+            for message in self.pubsub.listen():
+                if message['type'] != 'pmessage':
+                    continue
+                data = json.loads(message['data'])
+                chan = message['channel']
+                schan = ".".join(chan.split(".")[1:])
+                sensor = getattr(self, schan)
+                device = sensor.device
+                t = datetime.fromtimestamp(data['t'])
+                val = data['val']
+                dp = Datapoint(t=t,val=val)
+                sensor.append(dp)
+                if len(sensor) > 10:
+                    sensor.pop(0)
+                for listener in self.listeners.get(message['pattern'], ()):
+                    kwargs = dict(chan=sensor,device=device,data=dp)
+                    while True:
+                        try:
+                            listener(**kwargs)
+                        except TypeError as e: # Remove offending kwargs until function is happy
+                            m = re.match(r"\w+\(\) got an unexpected keyword argument '(\w+)'", e.message)
+                            if m is not None:
+                                del kwargs[m.group(1)]
+                                continue
+                            else:
+                                raise e
+                        break
+        finally:
+            print "Ending"
+            self.running = False
+            self.r.set("%s.running"%self.name,0)
+            self.r.publish("%s.running"%self.name,0)
 
     def stream(self, schan):
         try:
@@ -63,7 +85,7 @@ class DataScript(dict):
         except:
             pass
         def decorator(func):
-            chan = "%s.%s"%(self.name,schan)
+            chan = "%s.%s.%s"%(self.name,"chans",schan)
             self.listeners[chan] = self.listeners.get(chan,())+(func,)
             self.pubsub.psubscribe(chan)
             print self.listeners
@@ -81,7 +103,7 @@ class DataScript(dict):
             t = datetime.now()
         print t
         data = json.dumps(dict(t=(t - datetime(1970,1,1)).total_seconds(),val=val))
-        self.r.publish("%s.%s"%(self.name, chan),data)
+        self.r.publish("%s.%s.%s"%(self.name,"chans",chan),data)
 
     def __getattr__(self, attr):
         if attr not in self.nodes:

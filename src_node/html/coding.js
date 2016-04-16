@@ -23,6 +23,14 @@ socket.on("sketches", function(sketches){
   console.log(sketches)
 })
 
+socket.on("running", function(running){
+  if(running){
+    $("#stop").text("Stop").prop("disabled", false)
+  }else{
+    $("#stop").text("Stopped").prop("disabled", true)
+  }
+})
+
 setInterval(function(){
   if(loaded){
     socket.emit("save", {code:editor.getValue()})
@@ -35,4 +43,8 @@ window.onload = function() {
 
 function runCode(){
   socket.emit("save_run",{code:editor.getValue()})
+}
+
+function stopCode(){
+  socket.emit("stop")
 }
