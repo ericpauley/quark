@@ -45,6 +45,16 @@ function runCode(){
   socket.emit("save_run",{code:editor.getValue()})
 }
 
+<<<<<<< HEAD
 function stopCode(){
   socket.emit("stop")
 }
+=======
+function newSketch(){
+  newSketch = document.getElementById("newSketchName").value
+  console.log(newSketch);
+  if newSketch
+  var list = document.getElementById("sketchList");
+  list.add(newSketch);
+}
+>>>>>>> origin/master
