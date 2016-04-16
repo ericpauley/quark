@@ -9,15 +9,6 @@
 
     <!-- Bootstrap -->
     <link href="css/bootstrap.css" rel="stylesheet">
-    <style type="text/css" media="screen">
-      #editor { 
-          position: absolute;
-          top: 0;
-          right: 0;
-          bottom: 0;
-          left: 0;
-      }
-    </style>
 
     <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
     <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
@@ -27,7 +18,6 @@
     <![endif]-->
   </head>
   <body>
-    <h1>Quark</h1>
 
     <nav class="navbar navbar-default">
       <div class="container-fluid">
@@ -39,7 +29,7 @@
             <span class="icon-bar"></span>
             <span class="icon-bar"></span>
           </button>
-          <a class="navbar-brand" href="#">Quark/a>
+          <a class="navbar-brand" href="#">Quark</a>
         </div>
 
         <!-- Collect the nav links, forms, and other content for toggling -->
@@ -69,16 +59,20 @@
       </div><!-- /.container-fluid -->
     </nav>
 
-    <div id="editor">function foo(items) {
-        var x = "All this is syntax highlighted";
-        return x;
-    }</div>
+    <div class="panel panel-default">
+      <div class="panel-body">
+        <div id="editor">function foo(items) {
+            var x = "All this is syntax highlighted";
+            return x;
+        }</div>
+      </div>
+    </div>
         
-    <script src="/ace-builds/src-noconflict/ace.js" type="text/javascript" charset="utf-8"></script>
+    <script src="/src-noconflict/ace.js" type="text/javascript" charset="utf-8"></script>
     <script>
         var editor = ace.edit("editor");
         editor.setTheme("ace/theme/monokai");
-        editor.getSession().setMode("ace/mode/javascript");
+        editor.getSession().setMode("ace/mode/python");
     </script>
 
     <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
