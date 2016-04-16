@@ -35,16 +35,22 @@
         <!-- Collect the nav links, forms, and other content for toggling -->
         <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
           <ul class="nav navbar-nav">
-            <li class="active"><a href="#">Develop <span class="sr-only">(current)</span></a></li>
+            <li class="active"><a href="#">Home <span class="sr-only">(current)</span></a></li>
             <li><a href="data.html">View</a></li>
             <li class="dropdown">
-              <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Device <span class="caret"></span></a>
-              <ul class="dropdown-menu">
-                <li><a href="#">Quark 1</a></li>
-                <li><a href="#">Quark 2</a></li>
+              <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Develop <span class="caret"></span></a>
+              <ul class="dropdown-menu" id="sketchList">
+                <li><a href="sketch1">Sketch1</a></li>
+                <li><a href="sketch2">Sketch2</a></li>
               </ul>
             </li>
           </ul>
+          <form class="navbar-form navbar-left" role="search">
+            <div class="form-group">
+              <input type="text" class="form-control" placeholder="New Sketch" id="newSketchName">
+            </div>
+            <button type="submit" class="btn btn-default" onclick="newSketch()">Add New Sketch</button>
+          </form>
           <ul class="nav navbar-nav navbar-right">
             <li><p class="navbar-text">Signed in as <a href="#" class="navbar-link">Andy </a></p></li>
             <li class="dropdown">
@@ -64,10 +70,7 @@
         <h3 class="panel-title">Data Analysis Code </h3>
       </div>
       <div class="panel-body">
-        <div id="editor">function foo(items) {
-            var x = "All this is syntax highlighted";
-            return x;
-        }</div>
+        <div id="editor"></div>
         <button type="button" class="btn btn-default" onclick="runCode()">Save and Run</button>
       </div>
     </div>
