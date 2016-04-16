@@ -1,10 +1,19 @@
 var myCode = editor.getValue();
+var socket = io();
 
+socket.on("connect",function(){
+  page = window.location.pathname
+  page = /\/(\w+)/.exec(page)[1]
+  console.log(page)
+  socket.emit("page", {name:page})
+})
+
+socket.on("page", function(message){
+  console.log(message)
+  editor.setValue(message.code);
+})
 
 window.onload = function() {
-       //when the document is finished loading, replace everything
-       //between the <a ...> </a> tags with the value of splitText
-   editor.setValue(myCode);
 }
 
 
