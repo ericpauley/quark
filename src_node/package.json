@@ -1,0 +1,8 @@
+{
+  "name": "quark",
+  "version": "0.0.1",
+  "description": "Cloud enabled data analysis",
+  "dependencies": {
+    "express": "^4.10.2"
+  }
+}
