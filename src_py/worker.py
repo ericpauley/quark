@@ -1,7 +1,7 @@
 import redis
 import threading
 import json
-import script_runner
+from script_runner import *
 r = redis.Redis()
 ps = r.pubsub()
 
@@ -12,6 +12,7 @@ try:
     for message in ps.listen():
         if 'message' not in message['type']:
             continue
+        print message['data']
         cmd = json.loads(message['data'])
         name = cmd['name']
         if cmd['cmd'] == "start":
@@ -19,6 +20,7 @@ try:
             if name in scripts:
                 scripts[name].stop()
             scripts[name] = DataScript(name, code)
+            print "Starting script!!!"
             scripts[name].start()
 finally:
     for k,v in scripts:
