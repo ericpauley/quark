@@ -18,6 +18,11 @@ socket.on("page", function(message){
   editor.setValue(message.code);
 })
 
+socket.on("sketches", function(sketches){
+  // TODO: Stylize sketch list
+  console.log(sketches)
+})
+
 setInterval(function(){
   if(loaded){
     socket.emit("save", {code:editor.getValue()})

@@ -14,7 +14,8 @@ io.on('connection', function(socket){
   var page = ""
   socket.on('page', function(message){
     page = message.name
-    console.log(page)
+    socket.join(page)
+    master.sadd("sketches",page)
     master.get(page+".code", function(err,code){
       console.log(page+".code",code)
       if(code != null){
@@ -22,6 +23,9 @@ io.on('connection', function(socket){
       }else{
         socket.emit('page', {code:""})
       }
+    })
+    master.smembers("sketches", function(err, sketches){
+      socket.emit("sketches", sketches)
     })
   })
   socket.on('save', function(message){
