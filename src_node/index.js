@@ -68,6 +68,9 @@ io.on('connection', function(socket){
         socket.emit("sketches", sketches)
       })
     })
+    master.hgetall(page+".devices", function(err,data){
+      socket.emit("devices", data)
+    })
     master.get(page+".code", function(err,code){
       console.log(page+".code",code)
       if(code != null){
@@ -81,6 +84,11 @@ io.on('connection', function(socket){
       if(running && gdatas[page]){
         socket.emit("gdata", gdatas[page])
       }
+    })
+    socket.on("associate", function(message){
+      console.log("associated!")
+      master.hset("associations", message.id, page+"."+message.name)
+      master.hset(page+".devices", message.name, message.id)
     })
   })
   socket.on('save', function(message){

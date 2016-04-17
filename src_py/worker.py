@@ -10,24 +10,43 @@ ps = r.pubsub()
 
 ps.subscribe("control")
 
+class Eater(threading.Thread):
+
+    def __init__(self, caller):
+        super(Eater,self).__init__()
+        self.caller = caller
+
+    def run(self):
+        for i in self.caller():
+            pass
+
 class MyTCPHandler(SocketServer.StreamRequestHandler):
+
+    def display(self, message):
+        print "Displaying"
+        self.wfile.write("S|%s\r"%message['data'])
 
     def handle(self):
         # self.rfile is a file-like object created by the handler;
         # we can now use e.g. readline() instead of raw recv() calls
         self.id = self.rfile.readline().strip()
+        print "id",self.id
         r.hsetnx("associations", self.id, "")
+        self.wfile.write("S|CHOUCHIEEEEEEE\r")
+        ps = r.pubsub()
+        try:
+            ps.subscribe(**{"device."+self.id+".display":self.display})
+            Eater(ps.listen).start()
+            while True:
+                sketch,device = self.get_real_id()
+                data = self.rfile.readline().strip()
+                self.wfile.write("ACK\r")
+                print data
+        finally:
+            ps.close()
 
-        while True:
-            device = r.hget("associations", self.id)
-            data = self.rfile.readline().strip()
-            self.wfile.write("ACK\n\r")
-            print data
-
-    def get_real_id():
-        sketch,name = r.hget("associations",self.id).split(" ")
-
-
+    def get_real_id(self):
+        return r.hget("associations",self.id).split(".")
 
 class ThreadedTCPServer(SocketServer.ThreadingMixIn, SocketServer.TCPServer):
     pass
@@ -47,7 +66,7 @@ server_thread.start()
 class ThreadedUDPRequestHandler(SocketServer.BaseRequestHandler):
 
     def handle(self):
-        data = self.request[0]
+        data = self.request[0].strip()
         #print data
 
 class ThreadedUDPServer(SocketServer.ThreadingMixIn, SocketServer.UDPServer):
@@ -83,3 +102,4 @@ try:
 finally:
     for k,v in scripts:
         v.stop()
+input()

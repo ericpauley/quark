@@ -55,6 +55,10 @@ socket.on("gdata", function(gd){
   }
 })
 
+socket.on("devices", function(data){
+  console.log("devices", data || {})
+})
+
 socket.on("graph", function(graph){
   console.log(graph)
   g=graphs[graph.graph]
@@ -106,4 +110,10 @@ function newSketch(){
   console.log(newURL);
   document.getElementById("newSketchName").placeholder = newSketch;
   window.location.href = newURL;
+}
+
+function associate(){
+  console.log($("#id_field").val())
+  console.log($("#name_field").val())
+  socket.emit("associate", {id:$("#id_field").val(),name:$("#name_field").val()})
 }

@@ -5,6 +5,9 @@ import re
 from datetime import datetime
 import stdlib
 import threading
+import traceback
+from time import time
+
 
 class DataScript(dict):
 
@@ -16,9 +19,14 @@ class DataScript(dict):
         self.listeners = {}
         self.nodes = {}
         self['d'] = self
-        self.update(stdlib.__dict__)
+        self.environ = {}
+        self.environ.update(stdlib.__dict__)
+        self.environ['d'] = self
+        #self.update(__builtins__)
         self.running = False
         self.graphs = []
+        self.updates = []
+        self.lastrepeat = time()
 
     def start(self):
         threading.Thread(target=self.run).start()
@@ -39,24 +47,39 @@ class DataScript(dict):
         print "stopping??????"
         self.pubsub.reset()
 
+    def device_listeners(self):
+        @self.stream("*.display")
+        def display(device,data):
+            print "Displaying!", device.chan
+            id = self.r.hget(self.name+".devices", device.chan)
+            print id
+            self.r.publish("device."+id+".display", data.val)
+
     def run(self):
         try:
             print "Starting"
             self.running = True
             self.r.set("%s.running"%self.name,2)
             self.r.publish("%s.running"%self.name,2)
-            exec(self.script, self, self)
+            self.device_listeners()
+            exec(self.script, self.environ, self.environ)
             self.pubsub.subscribe("null")
             print "%s.graphs"%self.name
             self.r.publish("%s.graphs"%self.name,json.dumps(self.graphs))
             self.r.set("%s.running"%self.name,1)
             self.r.publish("%s.running"%self.name,1)
-            for message in self.pubsub.listen():
-                if message['type'] != 'pmessage':
+            while self.pubsub.subscribed:
+                n = time()
+                if n > self.lastrepeat + .1:
+                    for method in self.updates:
+                        method()
+                    self.lastrepeat = n
+                message = self.pubsub.get_message(ignore_subscribe_messages=True)
+                if message is None:
                     continue
                 data = json.loads(message['data'])
                 chan = message['channel']
-                schan = ".".join(chan.split(".")[1:])
+                schan = ".".join(chan.split(".")[2:])
                 sensor = getattr(self, schan)
                 device = sensor.device
                 t = datetime.fromtimestamp(data['t'])
@@ -76,6 +99,7 @@ class DataScript(dict):
                                 del kwargs[m.group(1)]
                                 continue
                             else:
+                                traceback.print_exc()
                                 raise e
                         break
         finally:
@@ -97,6 +121,11 @@ class DataScript(dict):
             return func
         return decorator
 
+    def repeat(self, func):
+        print "FUNCTION",func,dir(func)
+        self.updates.append(func)
+        return func
+
     def push(self, chan, val, t=None):
         try:
             chan = chan.chan # If the channel is not a string try to stringify it
@@ -116,10 +145,8 @@ class DataScript(dict):
         return self.nodes[attr]
 
     def __getitem__(self, name):
-        try:
-            return super(DataSccript, self).__getitem__(name)
-        except:
-            return getattr(self, name)
+        print self, name in self
+        return super(DataScript, self).get(name, getattr(self, name))
 
 
 class Node(list):
