@@ -1,20 +1,10 @@
 var socket = io();
 
 socket.on("sketches", function(sketches){
-  // TODO: Stylize sketch list
-  console.log(sketches)
-  for (i = 0; i < sketches.length; i++) { 
-    var node = document.createElement("LI");   
-    var link = document.createElement("A");              // Create a <li> node
-    var textnode = document.createTextNode(sketches[i]);         // Create a text node
-    link.appendChild(textnode);                              // Append the text to <li>
-    node.appendChild(link);
-    document.getElementById("sketchList").appendChild(node);
-    baseURL = "/";
-    href = baseURL.concat(sketches[i]);
-    link.href = href;
+  $("#sketchList").empty()
+  for (i = 0; i < sketches.length; i++) {
+    $("#sketchList").append('<li><a href="/'+sketches[i]+'">'+sketches[i]+'</a></li>')
   }
-
 })
 
 window.onload = function () {
@@ -27,7 +17,7 @@ window.onload = function () {
 		data: [
 		{
 			type: "spline", //change type to bar, line, area, pie, etc
-			showInLegend: true,        
+			showInLegend: true,
 			dataPoints: [
 				{ x: 10, y: 51 },
 				{ x: 20, y: 45},
@@ -42,7 +32,7 @@ window.onload = function () {
 			},
 			{
 			type: "spline",
-			showInLegend: true,        
+			showInLegend: true,
 			dataPoints: [
 				{ x: 10, y: 21 },
 				{ x: 20, y: 44},

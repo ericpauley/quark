@@ -57,6 +57,9 @@ app.use(express.static('html'))
 
 io.on('connection', function(socket){
   var page = ""
+  master.smembers("sketches", function(err, sketches){
+    socket.emit("sketches", sketches)
+  })
   socket.on('page', function(message){
     page = message.name
     socket.join(page)
