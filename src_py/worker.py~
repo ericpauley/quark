@@ -31,18 +31,6 @@ class MyTCPHandler(SocketServer.StreamRequestHandler):
         print "S|%s\r"%message['data']
         self.wfile.write("S|%s\r"%message['data'])
 
-    def digitalWrite(self, message):
-
-        print "DigitalWriting"
-        print "D|%s\r"%message['data']
-        self.wfile.write("D|%s\r"%message['data'])
-
-    def PWM(self, message):
-
-        print "PWM"
-        print "P|%s\r"%message['data']
-        self.wfile.write("P|%s\r"%message['data'])
-
     def handle(self):
         # self.rfile is a file-like object created by the handler;
         # we can now use e.g. readline() instead of raw recv() calls

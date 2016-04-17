@@ -52,14 +52,9 @@ class DataScript(dict):
             id = self.r.hget(self.name+".devices", device.chan)
             self.r.publish("device."+id+".display", data.val)
 	@self.stream("*.digitalWrite")
-        def digitalWrite(device,data):
+        def display(device,data):
             id = self.r.hget(self.name+".devices", device.chan)
             self.r.publish("device."+id+".digitalWrite", data.val)
-        @self.stream("*.PWM")
-        def PWM(device,data):
-            id = self.r.hget(self.name+".devices", device.chan)
-            self.r.publish("device."+id+".PWM", data.val)
-
 
     def run(self):
         try:
