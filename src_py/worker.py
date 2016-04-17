@@ -47,15 +47,14 @@ server_thread.start()
 class ThreadedUDPRequestHandler(SocketServer.BaseRequestHandler):
 
     def handle(self):
-        data = self.request.recv(1024)
-        cur_thread = threading.current_thread()
-        print data
+        data = self.request[0]
+        #print data
 
 class ThreadedUDPServer(SocketServer.ThreadingMixIn, SocketServer.UDPServer):
     pass
 
 HOST, PORT = "0.0.0.0", 1337
-server = SocketServer.ThreadedUDPServer((HOST, PORT), ThreadedUDPRequesthandler)
+server = ThreadedUDPServer((HOST, PORT), ThreadedUDPRequestHandler)
 
 server_thread = threading.Thread(target=server.serve_forever)
 # Exit the server thread when the main thread terminates
@@ -78,6 +77,7 @@ try:
             print "Starting script!!!"
             scripts[name].start()
         if cmd['cmd'] == "stop":
+            print "stop"
             if name in scripts:
                 scripts[name].stop()
 finally:

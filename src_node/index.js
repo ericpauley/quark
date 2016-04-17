@@ -1,3 +1,4 @@
+
 express = require('express')
 
 var app = express()
@@ -14,6 +15,7 @@ var io = require('socket.io')(http);
 
 receiver.on("ready", function(){
   receiver.psubscribe("*.running")
+  receiver.psubscribe("*.graphs")
 });
 
 receiver.on("pmessage", function(pattern, channel, message){
@@ -21,7 +23,7 @@ receiver.on("pmessage", function(pattern, channel, message){
   if(parts[1] == "running"){
     io.to(parts[0]).emit("running",message)
   }else if(parts[1] == "graphs"){
-    gdata = json.parse(message)
+    gdata = JSON.parse(message)
     gdatas[parts[0]] = gdata
     if(receivers.hasOwnProperty(parts[0])){
       receivers[parts[0]].disconnect()
@@ -29,20 +31,29 @@ receiver.on("pmessage", function(pattern, channel, message){
     io.to(parts[0]).emit("gdata", gdata)
     grec = redis.createClient()
     for(var i = 0;i<gdata.length;i++){
+      console.log(i)
       var gnum = i
       var graph = gdata[i]
-      for(var j = 0;j<graph.length;j++){
-        var gseries = graph[j]
+      console.log(graph)
+      for(var j = 0;j<graph.channels.length;j++){
+        var gseries = graph.channels[j]
+        console.log(gseries)
         grec.psubscribe(gseries)
         grec.on("pmessage", function(pattern, channel, message){
+          data = JSON.parse(message)
+          console.log(data)
+          console.log(pattern, gseries)
           if(pattern == gseries){
-            io.to(parts[0]).emit("graph", {graph:gnum, series:channel})
+            console.log("COUCHIEEEE")
+            io.to(parts[0]).emit("graph", {graph:gnum, series:channel, t:data.t, val:data.val})
           }
         })
       }
     }
   }
 })
+
+app.use(express.static('html'))
 
 io.on('connection', function(socket){
   var page = ""
@@ -70,13 +81,16 @@ io.on('connection', function(socket){
     })
   })
   socket.on('save', function(message){
-    console.log("save",page+".code")
     master.set(page+".code",message.code)
   })
   socket.on('save_run', function(message){
     master.set(socket.page+".code",message.code,function(){
       master.publish("control", JSON.stringify({cmd:"start",name:page}))
     })
+  })
+  socket.on('stop', function(message){
+    console.log("stop")
+    master.publish("control", JSON.stringify({cmd:"stop",name:page}))
   })
 });
 
@@ -88,8 +102,6 @@ app.get('/:page', function(req, res){
   res.sendFile("html/index.html", {root:__dirname});
 })
 
-app.use(express.static('html'))
-
-http.listen(3000, function(){
-  console.log('listening on *:3000')
+http.listen(5000, function(){
+  console.log('listening on *:5000')
 });

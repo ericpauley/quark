@@ -23,18 +23,20 @@ class DataScript(dict):
     def start(self):
         threading.Thread(target=self.run).start()
 
-    def graph(*args, title=None):
+    def graph(self,*args, **kwargs):
         graph = []
         for i in args:
             try:
                 i = i.chan
             except:
                 pass
+            i = "%s.%s.%s"%(self.name,"chans",i)
             graph.append(i)
-        graph {"channels":graph,"title":title or "Graph %s"%(len(graphs)+1)}
-        graphs.append(graph)
+        graph = {"channels":graph,"title":kwargs.get("title","Graph %s"%(len(self.graphs)+1))}
+        self.graphs.append(graph)
 
     def stop(self):
+        print "stopping??????"
         self.pubsub.reset()
 
     def run(self):
@@ -44,6 +46,8 @@ class DataScript(dict):
             self.r.set("%s.running"%self.name,2)
             self.r.publish("%s.running"%self.name,2)
             exec(self.script, self, self)
+            self.pubsub.subscribe("null")
+            print "%s.graphs"%self.name
             self.r.publish("%s.graphs"%self.name,json.dumps(self.graphs))
             self.r.set("%s.running"%self.name,1)
             self.r.publish("%s.running"%self.name,1)

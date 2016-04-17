@@ -24,8 +24,8 @@ socket.on("page", function(message){
 socket.on("sketches", function(sketches){
   // TODO: Stylize sketch list
   console.log(sketches)
-  for (i = 0; i < sketches.length; i++) { 
-    var node = document.createElement("LI");   
+  for (i = 0; i < sketches.length; i++) {
+    var node = document.createElement("LI");
     var link = document.createElement("A");              // Create a <li> node
     var textnode = document.createTextNode(sketches[i]);         // Create a text node
     link.appendChild(textnode);                              // Append the text to <li>
@@ -38,8 +38,52 @@ socket.on("sketches", function(sketches){
 
 })
 
+gdata = []
+graphs = []
+charts = []
+
+socket.on("gdata", function(gd){
+  console.log("Ayoo", gd)
+  gdata = gd
+  graphs = []
+  $("#view").empty()
+  for(var i = 0;i<gdata.length;i++){
+    console.log(i)
+    graphs.push({})
+    $("#view").append('<div id="chart-'+i+'" style="height: 300px; width: 100%;"></div>')
+    var chart = new CanvasJS.Chart("chart-"+i,
+  	{
+  		animationEnabled: true,
+  		title:{
+  			text: gdata[i].title
+  		},
+  		data: [],
+  		legend: {}
+  	});
+    charts.push(chart);
+    chart.render()
+  }
+})
+
+socket.on("graph", function(graph){
+  console.log(graph)
+  g=graphs[graph.graph]
+  if(!g[graph.series]){
+    d = {
+			type: "line",
+			showInLegend: true,
+			dataPoints: []
+    }
+    g[graph.series] = d.dataPoints
+    charts[graph.graph].options.data.push(d)
+  }
+  g[graph.series].push({x:graph.t,y:graph.val})
+  charts[graph.graph].render()
+})
+
 socket.on("running", function(running){
-  if(running){
+  console.log("running", running)
+  if(running != "0"){
     $("#stop").text("Stop").prop("disabled", false)
   }else{
     $("#stop").text("Stopped").prop("disabled", true)
