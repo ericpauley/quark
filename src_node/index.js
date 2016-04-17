@@ -133,6 +133,23 @@ app.get('/:page', function(req, res){
   res.sendFile("html/index.html", {root:__dirname});
 })
 
+app.get('/:page/logs', function(req, res){
+  console.log(req.params.page+".logs")
+  master.lrange(req.params.page+".logs", -1000, -1, function(err, data){
+    console.log(err)
+    if(data){
+      var out = ""
+      for(var i = 0;i<data.length;i++){
+        out += data[i] + "\n"
+      }
+      res.writeHead(200, {'Content-Type': 'application/force-download','Content-disposition':'attachment; filename='+req.params.page+'.txt'});
+      res.end(out)
+    }else{
+      res.end("Fuu")
+    }
+  })
+})
+
 http.listen(3000, function(){
   console.log('listening on *:3000')
 });

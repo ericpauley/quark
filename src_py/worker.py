@@ -26,10 +26,11 @@ class Eater(threading.Thread):
 class MyTCPHandler(SocketServer.StreamRequestHandler):
 
     def display(self, message):
-
-        print "Displaying"
-        print "S|%s\r"%message['data']
-        self.wfile.write("S|%s\r"%message['data'])
+        if message['data'] != self.message:
+            self.message = message['data']
+            print "Displaying"
+            print "S|%s\r"%message['data']
+            self.wfile.write("S|%s\r"%message['data'])
 
     def digitalWrite(self, message):
 
@@ -44,6 +45,7 @@ class MyTCPHandler(SocketServer.StreamRequestHandler):
         self.wfile.write("P|%s\r"%message['data'])
 
     def handle(self):
+        self.message = None
         # self.rfile is a file-like object created by the handler;
         # we can now use e.g. readline() instead of raw recv() calls
         self.id = self.rfile.readline().strip()
@@ -53,7 +55,7 @@ class MyTCPHandler(SocketServer.StreamRequestHandler):
             pass
         print "id",self.id
         r.hsetnx("associations", self.id, "")
-        self.wfile.write("S|CHOUCHIEEEEEEE|2\r")
+        self.wfile.write("S|CONNECTED  ID=%s|2\r" % self.id)
         ps = r.pubsub()
         try:
             ps.subscribe(**{"device."+self.id+".display":self.display})

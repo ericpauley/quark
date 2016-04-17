@@ -13,9 +13,6 @@ import sys
 
 class DataScript(dict):
 
-    def write(self, data):
-        self.r.publish("%s.logs"%self.name, json.dumps({"type":"info","text":data.strip()}))
-
     def __init__(self, name, script):
         self.name = name
         self.script = script
@@ -37,8 +34,9 @@ class DataScript(dict):
     def start(self):
         threading.Thread(target=self.run).start()
 
-    def log(self, msg):
-        self.r.publish("%s.logs"%self.name, json.dumps({"type":"info","text":msg}))
+    def log(self, data):
+        self.r.publish("%s.logs"%self.name, json.dumps({"type":"primary","text":data.strip()}))
+        self.r.rpush("%s.logs"%self.name, data.strip())
 
     def graph(self,*args, **kwargs):
         graph = []
