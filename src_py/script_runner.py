@@ -23,7 +23,7 @@ class DataScript(dict):
     def start(self):
         threading.Thread(target=self.run).start()
 
-    def graph(*args):
+    def graph(*args, title=None):
         graph = []
         for i in args:
             try:
@@ -31,6 +31,7 @@ class DataScript(dict):
             except:
                 pass
             graph.append(i)
+        graph {"channels":graph,"title":title or "Graph %s"%(len(graphs)+1)}
         graphs.append(graph)
 
     def stop(self):

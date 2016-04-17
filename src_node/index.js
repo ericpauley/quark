@@ -8,6 +8,9 @@ var redis = require("redis"),
 master = redis.createClient();
 receiver = redis.createClient();
 
+gdatas = {}
+receivers = {}
+
 var io = require('socket.io')(http);
 
 receiver.on("ready", function(){
@@ -15,8 +18,31 @@ receiver.on("ready", function(){
 });
 
 receiver.on("pmessage", function(pattern, channel, message){
-  sketch = channel.split(".")[0]
-  io.to(sketch).emit("running",message)
+  parts = channel.split(".")
+  if(parts[1] == "running"){
+    io.to(parts[0]).emit("running",message)
+  }else if(parts[1] == "graphs"){
+    gdata = json.parse(message)
+    gdatas[parts[0]] = gdata
+    if(receivers.hasOwnProperty(parts[0])){
+      receivers[parts[0]].disconnect()
+    }
+    io.to(parts[0]).emit("gdata", gdata)
+    grec = redis.createClient()
+    for(var i = 0;i<gdata.length;i++){
+      var gnum = i
+      var graph = gdata[i]
+      for(var j = 0;j<graph.length;j++){
+        var gseries = graph[j]
+        grec.psubscribe(gseries))
+        grec.on("pmessage", function(pattern, channel, message){
+          if(pattern == gseries){
+            io.to(parts[0]).emit("graph", {graph:gnum, series:channel})
+          }
+        })
+      }
+    }
+  }
 })
 
 io.on('connection', function(socket){
@@ -39,6 +65,9 @@ io.on('connection', function(socket){
     })
     master.get(page+".running",function(err, running){
       socket.emit("running", running)
+      if(running && gdatas[page]){
+        socket.emit("gdata", gdatas[page])
+      }
     })
   })
   socket.on('save', function(message){
