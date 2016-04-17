@@ -36,6 +36,7 @@ socket.on("gdata", function(gd){
   console.log("Ayoo", gd)
   gdata = gd
   graphs = []
+  charts = []
   $("#view").empty()
   for(var i = 0;i<gdata.length;i++){
     console.log(i)
@@ -65,6 +66,9 @@ socket.on("graph", function(graph){
   if(!g[graph.series]){
     d = {
 			type: "line",
+      xValueType: "dateTime",
+      markerType: "none",
+      legendText: graph.series,
 			showInLegend: true,
 			dataPoints: []
     }
@@ -72,8 +76,13 @@ socket.on("graph", function(graph){
     charts[graph.graph].options.data.push(d)
   }
   g[graph.series].push({x:graph.t,y:graph.val})
-  charts[graph.graph].render()
 })
+
+setInterval(function(){
+  for(var i = 0;i<charts.length;i++){
+    charts[i].render()
+  }
+},1000/60)
 
 socket.on("running", function(running){
   console.log("running", running)

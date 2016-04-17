@@ -44,15 +44,12 @@ class DataScript(dict):
         self.graphs.append(graph)
 
     def stop(self):
-        print "stopping??????"
         self.pubsub.reset()
 
     def device_listeners(self):
         @self.stream("*.display")
         def display(device,data):
-            print "Displaying!", device.chan
             id = self.r.hget(self.name+".devices", device.chan)
-            print id
             self.r.publish("device."+id+".display", data.val)
 
     def run(self):
@@ -122,7 +119,6 @@ class DataScript(dict):
         return decorator
 
     def repeat(self, func):
-        print "FUNCTION",func,dir(func)
         self.updates.append(func)
         return func
 

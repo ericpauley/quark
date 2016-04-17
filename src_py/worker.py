@@ -5,10 +5,13 @@ from script_runner import *
 import socket
 import threading
 import SocketServer
+import time
 r = redis.Redis()
 ps = r.pubsub()
 
 ps.subscribe("control")
+
+offsets = {}
 
 class Eater(threading.Thread):
 
@@ -23,13 +26,13 @@ class Eater(threading.Thread):
 class MyTCPHandler(SocketServer.StreamRequestHandler):
 
     def display(self, message):
-        print "Displaying"
         self.wfile.write("S|%s\r"%message['data'])
 
     def handle(self):
         # self.rfile is a file-like object created by the handler;
         # we can now use e.g. readline() instead of raw recv() calls
         self.id = self.rfile.readline().strip()
+        del offsets[self.id]
         print "id",self.id
         r.hsetnx("associations", self.id, "")
         self.wfile.write("S|CHOUCHIEEEEEEE\r")
@@ -40,8 +43,6 @@ class MyTCPHandler(SocketServer.StreamRequestHandler):
             while True:
                 sketch,device = self.get_real_id()
                 data = self.rfile.readline().strip()
-                self.wfile.write("ACK\r")
-                print data
         finally:
             ps.close()
 
@@ -63,11 +64,41 @@ server_thread = threading.Thread(target=server.serve_forever)
 server_thread.daemon = True
 server_thread.start()
 
+def tint(i):
+    try:
+        return float(i)
+    except:
+        return i
+
 class ThreadedUDPRequestHandler(SocketServer.BaseRequestHandler):
 
     def handle(self):
-        data = self.request[0].strip()
-        #print data
+        data = self.request[0].strip().split("|")
+        id = data[0]
+        millis = int(data[1])
+        data = data[2:]
+        data = {d.split(":")[0]:[float(i) for i in d.split(":")[1:]] for d in data}
+        sketch, device = r.hget("associations",id).split(".")
+        offset = time.time()-millis
+        offsets[id] = offset
+        prefix = "%s.chans.%s."%(sketch,device)
+        if "Al" in data:
+            r.publish(prefix+"accel.x", json.dumps(dict(t=millis+offset, val=data["Al"][0])))
+            r.publish(prefix+"accel.y", json.dumps(dict(t=millis+offset, val=data["Al"][1])))
+            r.publish(prefix+"accel.z", json.dumps(dict(t=millis+offset, val=data["Al"][2])))
+        if "A0" in data:
+            r.publish(prefix+"analog.0", json.dumps(dict(t=millis+offset, val=data["A0"][0])))
+        if "A1" in data:
+            r.publish(prefix+"analog.1", json.dumps(dict(t=millis+offset, val=data["A1"][0])))
+        if "A2" in data:
+            r.publish(prefix+"analog.2", json.dumps(dict(t=millis+offset, val=data["A2"][0])))
+        if "Ml" in data:
+            r.publish(prefix+"mag.x", json.dumps(dict(t=millis+offset, val=data["Ml"][0])))
+            r.publish(prefix+"mag.y", json.dumps(dict(t=millis+offset, val=data["Ml"][1])))
+            r.publish(prefix+"mag.z", json.dumps(dict(t=millis+offset, val=data["Ml"][2])))
+        if "Bl" in data:
+            r.publish(prefix+"pressure", json.dumps(dict(t=millis+offset, val=data["Bl"][0])))
+            r.publish(prefix+"temp", json.dumps(dict(t=millis+offset, val=data["Bl"][1])))
 
 class ThreadedUDPServer(SocketServer.ThreadingMixIn, SocketServer.UDPServer):
     pass
