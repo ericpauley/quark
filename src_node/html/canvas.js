@@ -11,18 +11,40 @@ socket.on("sketches", function(sketches){
   	document.getElementById("graphB").className = "active";
   	document.getElementById("newDataStreamB").className = " ";
   	document.getElementById("averageB").className = " ";
+  	document.getElementById("displayB").className = " ";
+  	document.getElementById("pushB").className = " ";
   }
 
   function newDataStream(){
   	document.getElementById("graphB").className = " ";
   	document.getElementById("newDataStreamB").className = "active";
   	document.getElementById("averageB").className = " ";
+  	document.getElementById("displayB").className = " ";
+  	document.getElementById("pushB").className = " ";
   }
 
   function average(){
   	document.getElementById("graphB").className = " ";
   	document.getElementById("newDataStreamB").className = " ";
   	document.getElementById("averageB").className = "active";
+  	document.getElementById("displayB").className = " ";
+  	document.getElementById("pushB").className = " ";
+  }
+
+  function display(){
+  	document.getElementById("graphB").className = " ";
+  	document.getElementById("newDataStreamB").className = " ";
+  	document.getElementById("averageB").className = " ";
+  	document.getElementById("displayB").className = "active";
+  	document.getElementById("pushB").className = " ";
+  }
+
+  function push(){
+  	document.getElementById("graphB").className = " ";
+  	document.getElementById("newDataStreamB").className = " ";
+  	document.getElementById("averageB").className = " ";
+  	document.getElementById("displayB").className = " ";
+  	document.getElementById("pushB").className = "active";
   }
 
 window.onload = function () {
