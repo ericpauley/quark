@@ -26,6 +26,9 @@ class Eater(threading.Thread):
 class MyTCPHandler(SocketServer.StreamRequestHandler):
 
     def display(self, message):
+
+        print "Displaying"
+        print "S|%s\r"%message['data']
         self.wfile.write("S|%s\r"%message['data'])
 
     def handle(self):
@@ -99,6 +102,8 @@ class ThreadedUDPRequestHandler(SocketServer.BaseRequestHandler):
         if "Bl" in data:
             r.publish(prefix+"pressure", json.dumps(dict(t=millis+offset, val=data["Bl"][0])))
             r.publish(prefix+"temp", json.dumps(dict(t=millis+offset, val=data["Bl"][1])))
+        data = self.request[0].strip()
+        print data
 
 class ThreadedUDPServer(SocketServer.ThreadingMixIn, SocketServer.UDPServer):
     pass
