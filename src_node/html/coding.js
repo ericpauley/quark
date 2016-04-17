@@ -1,5 +1,7 @@
 var myCode = editor.getValue();
 var socket = io();
+var list = document.getElementById("sketchList");
+
 
 loaded = false
 
@@ -21,6 +23,18 @@ socket.on("page", function(message){
 socket.on("sketches", function(sketches){
   // TODO: Stylize sketch list
   console.log(sketches)
+  for (i = 0; i < sketches.length; i++) { 
+    var node = document.createElement("LI");   
+    var link = document.createElement("A");              // Create a <li> node
+    var textnode = document.createTextNode(sketches[i]);         // Create a text node
+    link.appendChild(textnode);                              // Append the text to <li>
+    node.appendChild(link);
+    document.getElementById("sketchList").appendChild(node);
+    baseURL = "/";
+    href = baseURL.concat(sketches[i]);
+    link.href = href;
+  }
+
 })
 
 socket.on("running", function(running){
@@ -45,16 +59,18 @@ function runCode(){
   socket.emit("save_run",{code:editor.getValue()})
 }
 
-<<<<<<< HEAD
 function stopCode(){
   socket.emit("stop")
 }
-=======
+
 function newSketch(){
+  console.log("you pressed add new sketch");
+
   newSketch = document.getElementById("newSketchName").value
   console.log(newSketch);
-  if newSketch
-  var list = document.getElementById("sketchList");
-  list.add(newSketch);
+  var baseURL = "/";
+  newURL = baseURL.concat(newSketch);
+  console.log(newURL);
+  document.getElementById("newSketchName").placeholder = newSketch;
+  window.location.href = newURL;
 }
->>>>>>> origin/master
