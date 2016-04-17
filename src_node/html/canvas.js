@@ -7,6 +7,24 @@ socket.on("sketches", function(sketches){
   }
 })
 
+ function graph() {
+  	document.getElementById("graphB").className = "active";
+  	document.getElementById("newDataStreamB").className = " ";
+  	document.getElementById("averageB").className = " ";
+  }
+
+  function newDataStream(){
+  	document.getElementById("graphB").className = " ";
+  	document.getElementById("newDataStreamB").className = "active";
+  	document.getElementById("averageB").className = " ";
+  }
+
+  function average(){
+  	document.getElementById("graphB").className = " ";
+  	document.getElementById("newDataStreamB").className = " ";
+  	document.getElementById("averageB").className = "active";
+  }
+
 window.onload = function () {
 	var chart = new CanvasJS.Chart("chartContainer",
 	{

@@ -9,6 +9,26 @@
           /*max-width: 1000px;*/
         }
 
+#page {
+  margin-left: 200px;
+}
+
+#mainContent {
+  float: right;
+  width: 100%;
+  margin-left: 200px;
+}
+
+#sideBar {
+  float: left;
+  width: 200px;
+  margin-left: -200px;
+}
+
+#clearingdiv {
+    clear: both;
+}
+
 /*!
  * Bootstrap v3.3.6 (http://getbootstrap.com)
  * Copyright 2011-2015 Twitter, Inc.

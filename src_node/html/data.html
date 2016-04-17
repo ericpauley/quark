@@ -56,7 +56,57 @@
       </div><!-- /.container-fluid -->
     </nav>
 
-    <div id="chartContainer" style="height: 300px; width: 100%;"></div>
+    <div id="page">
+
+      <div id="sideBar">
+        <ul class="nav nav-pills nav-stacked">
+          <li role="presentation" class="" onclick="graph()" id="graphB"><a href="#Graph">Graph</a></li>
+          <li role="presentation" onclick="newDataStream()" id="newDataStreamB"><a href="#NewDataStream">New Data Stream</a></li>
+          <li role="presentation" onclick="average()" id="averageB"><a href="#Average">Average</a></li>
+        </ul>
+      </div>
+      <div id="mainContent">
+        <div id="Graph">
+          <h2>Graph</h2>
+          <p>Plot data from a data stream</p>
+          <div class="panel panel-default">
+            <!-- Default panel contents -->
+            <div class="panel-heading">graph(device.dataStream1,device.dataSteam2,title="title")</div>
+            <!-- Table -->
+            <table class="table">
+              <tr>
+                <th>Parameter</th>
+                <th>Value</th>
+              </tr>
+              <tr>
+                <td>device</td>
+                <td>device id, or * for all devices</td>
+              </tr>
+              <tr>
+                <td>dataStream</td>
+                <td>name of the data stream to be graphed</td>
+              </tr>
+              <tr>
+                <td>"title"</td>
+                <td>title displayed on the graph</td>
+              </tr>
+            </table>
+          </div>
+          <div id="chartContainer" style="height: 300px; width: 100%;"></div>
+        </div>
+        
+        <div id="NewDataStream">
+          <h2>New Data Stream</h2>
+        </div>
+        
+        <div id="Average">
+          <h2>Average</h2>
+        </div>
+
+      </div>
+      <div id="clearingdiv"></div>
+    </div>
+
 
     <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
