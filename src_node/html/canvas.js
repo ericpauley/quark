@@ -1,9 +1,28 @@
+var socket = io();
+
+socket.on("sketches", function(sketches){
+  // TODO: Stylize sketch list
+  console.log(sketches)
+  for (i = 0; i < sketches.length; i++) { 
+    var node = document.createElement("LI");   
+    var link = document.createElement("A");              // Create a <li> node
+    var textnode = document.createTextNode(sketches[i]);         // Create a text node
+    link.appendChild(textnode);                              // Append the text to <li>
+    node.appendChild(link);
+    document.getElementById("sketchList").appendChild(node);
+    baseURL = "/";
+    href = baseURL.concat(sketches[i]);
+    link.href = href;
+  }
+
+})
+
 window.onload = function () {
 	var chart = new CanvasJS.Chart("chartContainer",
 	{
 		animationEnabled: true,
 		title:{
-			text: "Multi Series Spline Chart - Hide / Unhide via Legend"
+			text: "Example Graph"
 		},
 		data: [
 		{
