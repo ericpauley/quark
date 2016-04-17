@@ -135,6 +135,48 @@ def method(**params):
           </div>
         </div>
 
+        <div id="Display">
+          <h2>Display</h2>
+          <div class="panel panel-default">
+            <!-- Default panel contents -->
+            <div class="panel-heading">device.display.push(text)</div>
+            <!-- Table -->
+            <table class="table">
+              <tr>
+                <th>Parameter</th>
+                <th>Value</th>
+              </tr>
+              <tr>
+                <td>text</td>
+                <td>Text to be displayed. (Format of string is "%TEXT%|%TEXTSIZE%")</td>
+              </tr>
+            </table>
+          </div>
+        </div>
+
+        <div id="Push">
+          <h2>Push to Synthetic Data Stream</h2>
+          <div class="panel panel-default">
+            <!-- Default panel contents -->
+            <div class="panel-heading">channel.push(datapoint, t=None)</div>
+            <!-- Table -->
+            <table class="table">
+              <tr>
+                <th>Parameter</th>
+                <th>Value</th>
+              </tr>
+              <tr>
+                <td>datapoint</td>
+                <td>A datapoint or value to be pushed</td>
+              </tr>
+              <tr>
+                <td>t</td>
+                <td>The time to be used in the creation of a datapoint from a value</td>
+              </tr>
+            </table>
+          </div>
+        </div>
+
       </div>
       <div id="clearingdiv"></div>
     </div>
