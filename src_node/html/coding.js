@@ -12,6 +12,7 @@ socket.on("connect",function(){
   page = /\/(\w+)/.exec(page)[1]
   console.log(page)
   socket.emit("page", {name:page})
+  document.getElementById("sketchDropDown").innerHTML = page;
 })
 
 socket.on("page", function(message){
@@ -64,8 +65,6 @@ function stopCode(){
 }
 
 function newSketch(){
-  console.log("you pressed add new sketch");
-
   newSketch = document.getElementById("newSketchName").value
   console.log(newSketch);
   var baseURL = "/";
