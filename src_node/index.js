@@ -2,7 +2,6 @@ express = require('express')
 
 var app = express()
 var http = require('http').Server(app)
-app.use(express.static('html'))
 
 var redis = require("redis"),
 master = redis.createClient();
@@ -34,7 +33,7 @@ receiver.on("pmessage", function(pattern, channel, message){
       var graph = gdata[i]
       for(var j = 0;j<graph.length;j++){
         var gseries = graph[j]
-        grec.psubscribe(gseries))
+        grec.psubscribe(gseries)
         grec.on("pmessage", function(pattern, channel, message){
           if(pattern == gseries){
             io.to(parts[0]).emit("graph", {graph:gnum, series:channel})
@@ -88,6 +87,8 @@ app.get('/', function(req, res){
 app.get('/:page', function(req, res){
   res.sendFile("html/index.html", {root:__dirname});
 })
+
+app.use(express.static('html'))
 
 http.listen(3000, function(){
   console.log('listening on *:3000')
