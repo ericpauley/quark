@@ -57,6 +57,8 @@ class MyTCPHandler(SocketServer.StreamRequestHandler):
         ps = r.pubsub()
         try:
             ps.subscribe(**{"device."+self.id+".display":self.display})
+            ps.subscribe(**{"device."+self.id+".digitalWrite":self.digitalWrite})
+            ps.subscribe(**{"device."+self.id+".PWM":self.PWM})
             Eater(ps.listen).start()
             while True:
                 sketch,device = self.get_real_id()
@@ -96,13 +98,17 @@ class ThreadedUDPRequestHandler(SocketServer.BaseRequestHandler):
         millis = int(data[1])/1000.0
         data = data[2:]
         data = {d.split(":")[0]:[float(i) for i in d.split(":")[1:]] for d in data}
-        sketch, device = r.hget("associations",id).split(".")
+        assoc = r.hget("associations",id)
+        if assoc is None or not assoc.strip():
+            return
+        sketch, device = assoc.split(".")
         if id not in offsets:
             offset = time.time()-millis
             offsets[id] = offset
         else:
             offset = offsets[id]
         prefix = "%s.chans.%s."%(sketch,device)
+        r.publish("device.%s.active"%id,1)
         if "Al" in data:
             r.publish(prefix+"accel.x", json.dumps(dict(t=millis+offset, val=data["Al"][0])))
             r.publish(prefix+"accel.y", json.dumps(dict(t=millis+offset, val=data["Al"][1])))
@@ -121,7 +127,6 @@ class ThreadedUDPRequestHandler(SocketServer.BaseRequestHandler):
             r.publish(prefix+"pressure", json.dumps(dict(t=millis+offset, val=data["Bl"][0])))
             r.publish(prefix+"temp", json.dumps(dict(t=millis+offset, val=data["Bl"][1])))
         data = self.request[0].strip()
-        print data
 
 class ThreadedUDPServer(SocketServer.ThreadingMixIn, SocketServer.UDPServer):
     pass

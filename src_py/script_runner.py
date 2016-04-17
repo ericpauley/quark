@@ -7,9 +7,14 @@ import stdlib
 import threading
 import traceback
 from time import time
-
+from exceptions import Exception
+import os
+import sys
 
 class DataScript(dict):
+
+    def write(self, data):
+        self.r.publish("%s.logs"%self.name, json.dumps({"type":"info","text":data.strip()}))
 
     def __init__(self, name, script):
         self.name = name
@@ -21,6 +26,7 @@ class DataScript(dict):
         self['d'] = self
         self.environ = {}
         self.environ.update(stdlib.__dict__)
+        self.environ["log"] = self.log
         self.environ['d'] = self
         #self.update(__builtins__)
         self.running = False
@@ -30,6 +36,9 @@ class DataScript(dict):
 
     def start(self):
         threading.Thread(target=self.run).start()
+
+    def log(self, msg):
+        self.r.publish("%s.logs"%self.name, json.dumps({"type":"info","text":msg}))
 
     def graph(self,*args, **kwargs):
         graph = []
@@ -107,9 +116,11 @@ class DataScript(dict):
                                 continue
                             else:
                                 traceback.print_exc()
-                                self.r.publish("%s.logs"%self.name, json.dumps({"type":"danger","text":traceback.fmt_exc()}))
+                                self.r.publish("%s.logs"%self.name, json.dumps({"type":"danger","text":traceback.format_exc()}))
                                 break
                         break
+        except:
+            self.r.publish("%s.logs"%self.name, json.dumps({"type":"danger","text":traceback.format_exc()}))
         finally:
             print "Ending"
             self.r.publish("%s.logs"%self.name, json.dumps({"type":"info","text":"Program ended..."}))

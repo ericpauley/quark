@@ -81,9 +81,6 @@
           <div id="editor"></div>
           <button type="button" class="btn btn-default" onclick="runCode()">Save and Run</button>
           <button type="button" id="stop" class="btn btn-danger" disabled onclick="stopCode()">Stopped</button>
-          <input type="text" class="form-control" placeholder="ID" id="id_field">
-          <input type="text" class="form-control" placeholder="name" id="name_field">
-          <button type="button" class="btn btn-default" onclick="associate()">Associate Device</button>
         </div>
       </div>
 
@@ -111,6 +108,21 @@
         </div>
         <div class="panel-body" id="log-messages">
 
+        </div>
+      </div>
+    </div>
+    <div role="tabpanel" class="tab-pane" id="settings">
+      <div class="panel panel-default">
+        <div class="panel-heading">
+          <h3 class="panel-title">Device Settings</h3>
+        </div>
+        <div class="panel-body">
+          <div id="device-list">
+
+          </div>
+          <input type="text" class="form-control" placeholder="ID" id="id_field">
+          <input type="text" class="form-control" placeholder="name" id="name_field">
+          <button type="button" class="btn btn-default" onclick="associate()">Associate Device</button>
         </div>
       </div>
     </div>

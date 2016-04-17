@@ -92,9 +92,20 @@ io.on('connection', function(socket){
       }
     })
     socket.on("associate", function(message){
-      console.log("associated!")
-      master.hset("associations", message.id, page+"."+message.name)
-      master.hset(page+".devices", message.name, message.id)
+      master.hget("associations", message.id,function(err, val){
+        if(val){
+          sketch = val.split(".")[0]
+          device = val.split(".")[1]
+          master.hdel(sketch+".devices", device)
+        }
+        master.hset("associations", message.id, page+"."+message.name)
+        master.hset(page+".devices", message.name, message.id, function(){
+          console.log("associated!")
+          master.hgetall(page+".devices", function(err,data){
+            socket.emit("devices", data)
+          })
+        })
+      })
     })
   })
   socket.on('save', function(message){
@@ -122,6 +133,6 @@ app.get('/:page', function(req, res){
   res.sendFile("html/index.html", {root:__dirname});
 })
 
-http.listen(5000, function(){
-  console.log('listening on *:5000')
+http.listen(3000, function(){
+  console.log('listening on *:3000')
 });

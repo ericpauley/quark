@@ -36,6 +36,12 @@ charts = []
 
 autoupdate = false
 
+socket.on("logs", function(message){
+  $("#log-messages").prepend('<p><pre class="bg-'+message.type+'">'+message.text+'</pre></p>')
+})
+
+$("#log-messages").prepend('<p class="bg-info">Log messages from your program will appear here.</p>')
+
 socket.on("gdata", function(gd){
   console.log("Ayoo", gd)
   gdata = gd
@@ -61,6 +67,10 @@ socket.on("gdata", function(gd){
 })
 
 socket.on("devices", function(data){
+  $("#device-list").empty()
+  for(var key in data){
+    $("#device-list").append("<p>Device "+key+" mapped to device id "+data[key])
+  }
   console.log("devices", data || {})
 })
 
