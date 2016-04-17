@@ -47,10 +47,13 @@ class MyTCPHandler(SocketServer.StreamRequestHandler):
         # self.rfile is a file-like object created by the handler;
         # we can now use e.g. readline() instead of raw recv() calls
         self.id = self.rfile.readline().strip()
-        del offsets[self.id]
+        try:
+            del offsets[self.id]
+        except:
+            pass
         print "id",self.id
         r.hsetnx("associations", self.id, "")
-        self.wfile.write("S|CHOUCHIEEEEEEE\r")
+        self.wfile.write("S|CHOUCHIEEEEEEE|2\r")
         ps = r.pubsub()
         try:
             ps.subscribe(**{"device."+self.id+".display":self.display})
@@ -90,12 +93,15 @@ class ThreadedUDPRequestHandler(SocketServer.BaseRequestHandler):
     def handle(self):
         data = self.request[0].strip().split("|")
         id = data[0]
-        millis = int(data[1])
+        millis = int(data[1])/1000.0
         data = data[2:]
         data = {d.split(":")[0]:[float(i) for i in d.split(":")[1:]] for d in data}
         sketch, device = r.hget("associations",id).split(".")
-        offset = time.time()-millis
-        offsets[id] = offset
+        if id not in offsets:
+            offset = time.time()-millis
+            offsets[id] = offset
+        else:
+            offset = offsets[id]
         prefix = "%s.chans.%s."%(sketch,device)
         if "Al" in data:
             r.publish(prefix+"accel.x", json.dumps(dict(t=millis+offset, val=data["Al"][0])))

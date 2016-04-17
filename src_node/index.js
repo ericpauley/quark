@@ -9,6 +9,7 @@ master = redis.createClient();
 receiver = redis.createClient();
 
 gdatas = {}
+grec = false
 receivers = {}
 
 var io = require('socket.io')(http);
@@ -16,6 +17,7 @@ var io = require('socket.io')(http);
 receiver.on("ready", function(){
   receiver.psubscribe("*.running")
   receiver.psubscribe("*.graphs")
+  receiver.psubscribe("*.logs")
 });
 
 receiver.on("pmessage", function(pattern, channel, message){
@@ -29,6 +31,9 @@ receiver.on("pmessage", function(pattern, channel, message){
       receivers[parts[0]].disconnect()
     }
     io.to(parts[0]).emit("gdata", gdata)
+    if(grec){
+      grec.quit()
+    }
     grec = redis.createClient()
     for(var i = 0;i<gdata.length;i++){
       console.log(i)
@@ -44,12 +49,13 @@ receiver.on("pmessage", function(pattern, channel, message){
           console.log(data)
           console.log(pattern, gseries)
           if(pattern == gseries){
-            console.log("COUCHIEEEE")
             io.to(parts[0]).emit("graph", {graph:gnum, series:channel, t:data.t, val:data.val})
           }
         })
       }
     }
+  }else if(parts[1] == "logs"){
+    io.to(parts[0]).emit("logs", JSON.parse(message))
   }
 })
 
@@ -93,6 +99,7 @@ io.on('connection', function(socket){
   })
   socket.on('save', function(message){
     master.set(page+".code",message.code)
+    socket.broadcast.to(page).emit('page', {code:message.code})
   })
   socket.on('save_run', function(message){
     master.set(socket.page+".code",message.code,function(){
@@ -100,7 +107,9 @@ io.on('connection', function(socket){
     })
   })
   socket.on('stop', function(message){
-    console.log("stop")
+    if(grec){
+      grec.quit()
+    }
     master.publish("control", JSON.stringify({cmd:"stop",name:page}))
   })
 });

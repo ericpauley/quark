@@ -18,7 +18,9 @@ socket.on("connect",function(){
 socket.on("page", function(message){
   loaded = true
   editor.setReadOnly(false)
+  autoupdate = true
   editor.setValue(message.code);
+  autoupdate = false
 })
 
 socket.on("sketches", function(sketches){
@@ -32,16 +34,18 @@ gdata = []
 graphs = []
 charts = []
 
+autoupdate = false
+
 socket.on("gdata", function(gd){
   console.log("Ayoo", gd)
   gdata = gd
   graphs = []
   charts = []
-  $("#view").empty()
+  $("#view-body").empty()
   for(var i = 0;i<gdata.length;i++){
     console.log(i)
     graphs.push({})
-    $("#view").append('<div id="chart-'+i+'" style="height: 300px; width: 100%;"></div>')
+    $("#view-body").append('<div id="chart-'+i+'" style="height: 300px; width: 100%;"></div>')
     var chart = new CanvasJS.Chart("chart-"+i,
   	{
   		animationEnabled: true,
@@ -61,7 +65,6 @@ socket.on("devices", function(data){
 })
 
 socket.on("graph", function(graph){
-  console.log(graph)
   g=graphs[graph.graph]
   if(!g[graph.series]){
     d = {
@@ -75,7 +78,16 @@ socket.on("graph", function(graph){
     g[graph.series] = d.dataPoints
     charts[graph.graph].options.data.push(d)
   }
-  g[graph.series].push({x:graph.t,y:graph.val})
+  var index = g[graph.series].length
+  console.log(g[graph.series][index-1],graph)
+  while(index > 0 && g[graph.series][index-1].t > graph.t){
+    console.log("backtrack")
+    index--
+  }
+  g[graph.series].splice(index,0,{x:graph.t,y:graph.val})
+  while(g[graph.series].length > 100){
+    g[graph.series].shift()
+  }
 })
 
 setInterval(function(){
@@ -93,11 +105,10 @@ socket.on("running", function(running){
   }
 })
 
-setInterval(function(){
-  if(loaded){
+editor.on("change", function(){
+  if(!autoupdate)
     socket.emit("save", {code:editor.getValue()})
-  }
-},1000)
+})
 
 window.onload = function() {
 }

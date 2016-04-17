@@ -63,6 +63,7 @@ class DataScript(dict):
 
     def run(self):
         try:
+            self.r.publish("%s.logs"%self.name, json.dumps({"type":"info","text":"Program started..."}))
             print "Starting"
             self.running = True
             self.r.set("%s.running"%self.name,2)
@@ -106,10 +107,12 @@ class DataScript(dict):
                                 continue
                             else:
                                 traceback.print_exc()
-                                raise e
+                                self.r.publish("%s.logs"%self.name, json.dumps({"type":"danger","text":traceback.fmt_exc()}))
+                                break
                         break
         finally:
             print "Ending"
+            self.r.publish("%s.logs"%self.name, json.dumps({"type":"info","text":"Program ended..."}))
             self.running = False
             self.r.set("%s.running"%self.name,0)
             self.r.publish("%s.running"%self.name,0)
