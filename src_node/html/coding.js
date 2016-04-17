@@ -10,6 +10,7 @@ editor.setReadOnly(true);
 socket.on("connect",function(){
   page = window.location.pathname
   page = /\/(\w+)/.exec(page)[1]
+  $("#loglink").attr("href",page+"/logs")
   console.log(page)
   socket.emit("page", {name:page})
   document.getElementById("sketchDropDown").innerHTML = page;
@@ -75,6 +76,7 @@ socket.on("devices", function(data){
 })
 
 socket.on("graph", function(graph){
+  graph.t *= 1000
   g=graphs[graph.graph]
   if(!g[graph.series]){
     d = {

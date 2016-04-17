@@ -97,10 +97,42 @@
 
         <div id="NewDataStream">
           <h2>New Data Stream</h2>
+          <div class="panel panel-default">
+            <!-- Default panel contents -->
+            <div class="panel-heading"><pre>@stream(channel)
+def method(**params):
+    ...</pre></div>
+            <!-- Table -->
+            <table class="table">
+              <tr>
+                <th>Parameter</th>
+                <th>Value</th>
+              </tr>
+              <tr>
+                <td>channel</td>
+                <td>a device, sensor, or name of a channel</td>
+              </tr>
+            </table>
+          </div>
         </div>
 
         <div id="Average">
           <h2>Average</h2>
+          <div class="panel panel-default">
+            <!-- Default panel contents -->
+            <div class="panel-heading">avg(datapoints)</div>
+            <!-- Table -->
+            <table class="table">
+              <tr>
+                <th>Parameter</th>
+                <th>Value</th>
+              </tr>
+              <tr>
+                <td>datapoints</td>
+                <td>A list of datapoints from any dataset</td>
+              </tr>
+            </table>
+          </div>
         </div>
 
       </div>
