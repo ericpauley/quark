@@ -65,23 +65,36 @@
       </div><!-- /.container-fluid -->
     </nav>
 
-    <div class="panel panel-default">
-      <div class="panel-heading">
-        <h3 class="panel-title">Data Analysis Code </h3>
-      </div>
-      <div class="panel-body">
-        <div id="editor"></div>
-        <button type="button" class="btn btn-default" onclick="runCode()">Save and Run</button>
-        <button type="button" id="stop" class="btn btn-danger" disabled onclick="stopCode()">Stopped</button>
-      </div>
-    </div>
+    <ul class="nav nav-tabs" role="tablist">
+    <li role="presentation" class="active"><a href="#code" aria-controls="home" role="tab" data-toggle="tab">Code</a></li>
+    <li role="presentation"><a href="#view" aria-controls="profile" role="tab" data-toggle="tab">View</a></li>
+    <li role="presentation"><a href="#messages" aria-controls="messages" role="tab" data-toggle="tab">Messages</a></li>
+    <li role="presentation"><a href="#settings" aria-controls="settings" role="tab" data-toggle="tab">Settings</a></li>
+  </ul>
 
-    <script src="/src-noconflict/ace.js" type="text/javascript" charset="utf-8"></script>
-    <script>
-        var editor = ace.edit("editor");
-        editor.setTheme("ace/theme/monokai");
-        editor.getSession().setMode("ace/mode/python");
-    </script>
+  <div class="tab-content">
+    <div role="tabpanel" class="tab-pane active" id="code">
+      <div class="panel panel-default">
+        <div class="panel-heading">
+          <h3 class="panel-title">Data Analysis Code </h3>
+        </div>
+        <div class="panel-body">
+          <div id="editor"></div>
+          <button type="button" class="btn btn-default" onclick="runCode()">Save and Run</button>
+          <button type="button" id="stop" class="btn btn-danger" disabled onclick="stopCode()">Stopped</button>
+        </div>
+      </div>
+
+      <script src="/src-noconflict/ace.js" type="text/javascript" charset="utf-8"></script>
+      <script>
+          var editor = ace.edit("editor");
+          editor.setTheme("ace/theme/monokai");
+          editor.getSession().setMode("ace/mode/python");
+      </script>
+    </div>
+    <div role="tabpanel" class="tab-pane" id="view">
+    </div>
+  </div>
 
     <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
